@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Moar gitKraken gitHub tests!</Text>
+      <Text>Even moar gitKraken gitHub tests!</Text>
       <StatusBar style="auto" />
     </View>
   );
