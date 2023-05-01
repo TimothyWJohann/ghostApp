@@ -1,11 +1,22 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import React, { Component } from 'react';
+import { WebView } from 'react-native-webview';
 
 export default function App() {
+
+  async function logJSONData() {
+    const response = await fetch("https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=1&fields=title,html");
+    const jsonData = await response.json();
+    console.log(jsonData);
+  }
+  logJSONData();
   return (
     <View style={styles.container}>
-      <Text>Even moar gitKraken gitHub tests!</Text>
-      <StatusBar style="auto" />
+      <WebView 
+      originWhitelist={['*']}
+      source={{ html: '<h1>HELLO WORLD</h1>' }}
+      />
     </View>
   );
 }
