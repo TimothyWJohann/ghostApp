@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import React, { Component } from 'react';
 import { WebView } from 'react-native-webview';
 
@@ -12,10 +12,10 @@ export default function App() {
   }
   logJSONData();
   return (
-    <View style={styles.container}>
-      <WebView 
-      originWhitelist={['*']}
-      source={{ html: '<h1>HELLO WORLD</h1>' }}
+    <View style={{ flex: 1 }}>
+      <WebView style={styles.webView}
+        originWhitelist={['*']}
+        source={{ html: '<h1>HELLO WORLD</h1>' }}
       />
     </View>
   );
@@ -27,5 +27,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+    height: '100%',
+    margin: 20,
   },
+  webView: {
+    borderWidth: 5,
+    borderColor: 'red',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 20,
+  }
 });
