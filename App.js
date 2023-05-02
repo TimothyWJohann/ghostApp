@@ -1,21 +1,37 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
-import React, { Component } from 'react';
+import React, { useState, Component } from 'react';
 import { WebView } from 'react-native-webview';
 
 export default function App() {
-
-  async function logJSONData() {
+const [pageHTML, setPageHTML] = useState('');
+  /* async function logJSONData() {
     const response = await fetch("https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=1&fields=title,html");
     const jsonData = await response.json();
-    console.log(jsonData);
+  //  console.log(jsonData);
+    jsonData = postData["posts"][0]["html"]
+    return jsonData;
   }
-  logJSONData();
+  let postData = await logJSONData();
+  */ 
+
+  fetch("https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=1&fields=title,html")
+  .then(result => result.json())
+  .then(json => {
+    //console.log('got json:', json);
+    postData = json["posts"][0]["html"];
+    setPageHTML(postData);
+  });
+  
+  /*let htmlData = postData["posts"][0]["html"];
+  console.log('HTML DATA');
+  console.log(htmlData);*/
+
   return (
     <View style={{ flex: 1 }}>
       <WebView style={styles.webView}
         originWhitelist={['*']}
-        source={{ html: '<h1>HELLO WORLD</h1>' }}
+        source={{ html: pageHTML }}
       />
     </View>
   );
