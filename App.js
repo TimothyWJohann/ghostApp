@@ -2,55 +2,88 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
 import React, { useState, Component } from 'react';
 import { WebView } from 'react-native-webview';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-export default function App() {
-const [pageHTML, setPageHTML] = useState('');
-  /* async function logJSONData() {
-    const response = await fetch("https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=1&fields=title,html");
-    const jsonData = await response.json();
-  //  console.log(jsonData);
-    jsonData = postData["posts"][0]["html"]
-    return jsonData;
-  }
-  let postData = await logJSONData();
-  */ 
+function ActivePost({ navigation }) {
+  const [pageHTML, setPageHTML] = useState('');
+  const [topImage, setTopImage] = useState('');
+  const [topImageCaption, setTopImageCaption] = useState('');
 
-  fetch("https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=1&fields=title,html")
-  .then(result => result.json())
-  .then(json => {
-    //console.log('got json:', json);
-    postData = json["posts"][0]["html"];
-    setPageHTML(postData);
-  });
-  
-  /*let htmlData = postData["posts"][0]["html"];
-  console.log('HTML DATA');
-  console.log(htmlData);*/
+  fetch("https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=1")
+    .then(result => result.json())
+    .then(json => {
+      postData = json["posts"][0]["html"];
+      imageAddress = json["posts"][0]["feature_image"];
+      imageCaption = json["posts"][0]["feature_image_caption"];
+      setPageHTML(postData);
+      setTopImage(imageAddress);
+      setTopImageCaption(imageCaption);
+      //console.log(json);
+    });
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
       <WebView style={styles.webView}
         originWhitelist={['*']}
-        source={{ html: pageHTML }}
+        source={{
+          html: `<style> 
+        body { font-size: 4rem }
+        ol {margin-left: 5rem}
+        #bmc-wbtn { width: 10rem !important; height: 10rem !important; border-radius: 10rem !important}
+        #bmc-wbtn img { width: 5rem !important; height: 5rem !important}
+        img { max-width: 100% !important; height: auto !important}
+        </style>`+ '<body>' + `<img src="${topImage}">` + topImageCaption + pageHTML + '</body>'
+        }}
       />
     </View>
   );
 }
 
+function LandingScreen() {
+  const [numberThumbnails, setNumberThumbnails] = useState('4');
+  const [imageArray, setImageArray] = useState('');
+  const [captionArray, setCaptionArray] = useState('');
+  fetch(`https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=${numberThumbnails}&include=id,title`)
+    .then(result => result.json())
+    .then(json => {
+      for (let thumbnails = 0; thumbnails < numberThumbnails; thumbnails++) {
+        imageAddress = json["posts"][thumbnail]["feature_image"];
+        imageCaption = json["posts"][thumbnail]["feature_image_caption"];
+        let tempImageAddressArray = imageArray.push(imageAddress);
+        setImageArray(tempImageAddressArray);
+        let tempImageCaptionArray = captionArray.push(imageCaption);
+        setCaptionArray(tempImageCaptionArray);
+      }
+    });
+    return(
+//FLATLIST HERE?
+
+    );
+}
+
+const Stack = createNativeStackNavigator();
+
+function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="ActivePost">
+        <Stack.Screen name="LandingScreen" component={LandingScreen} />
+        <Stack.Screen name="ActivePost" component={ActivePost} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+export default App;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
-    margin: 20,
+    margin: 10,
+
   },
   webView: {
-    borderWidth: 5,
-    borderColor: 'red',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: 20,
+    width: '100%',
   }
 });
