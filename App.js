@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView, Flatlist } from 'react-native';
-import React, { useState, Component } from 'react';
+import React, { useState, Component, useEffect } from 'react';
 import { WebView } from 'react-native-webview';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -40,38 +40,55 @@ function ActivePost({ navigation }) {
   );
 }
 
+/*function RenderLandingScreen(thumbnails) {
+  /*console.log("IN RENDER SCREEN");
+  const data = thumbnails.thumbnailData;
+  console.log("DATA", data);
+  console.log("KEYSDATA", Object.keys(data));
+  tempData = Object.keys(data);
+  testData = ["oranges", "apples", "bananas"];
+  return (
+    <View style={styles.test}>
+      <Text style={styles.landing}>Test text</Text>
+    </View>
+  );
+}*/
+
 function LandingScreen(navigation) {
   console.log("IN LANDING SCREEN");
   const [numberThumbnails, setNumberThumbnails] = useState(4);
-  const [imageArray, setImageArray] = useState([]);
-  const [captionArray, setCaptionArray] = useState([]);
-  fetch(`https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=${numberThumbnails}&fields=id,title,feature_image_caption,feature_image`)
-    .then(result => result.json())
-    .then(json => {
-      //console.log("JSON");
-      //console.log(json);
-      for (let thumbnail = 0; thumbnail < numberThumbnails; thumbnail++) {
-        let imageAddress = json["posts"][thumbnail]["feature_image"];
-        console.log("IMAGEADDRESS", imageAddress);
-        
-        let imageCaption = json["posts"][thumbnail]["feature_image_caption"];
-        let tempImageAddressArray = imageArray;
-        tempImageAddressArray = tempImageAddressArray.push(imageAddress);
-        setImageArray(tempImageAddressArray);
-        let tempImageCaptionArray = captionArray;
-        tempImageCaptionArray = tempImageCaptionArray.push(imageCaption);
-        setCaptionArray(tempImageCaptionArray);
-      }
-      console.log("IMAGE ARRAY", imageArray);
-    });
-  //console.log("BEFORE RETURN");
+  const [thumbnailData, setThumbnailData] = useState({});
+  useEffect(() => {
+    fetch(`https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=${numberThumbnails}&fields=id,title,feature_image`)
+      .then(result => result.json())
+      .then(json => {
+        let tempThumbnailData = thumbnailData;
+        for (let thumbnail = 0; thumbnail < numberThumbnails; thumbnail++) {
+          let thumbnailId = json["posts"][thumbnail]["id"];
+          let thumbnailImageAddress = json["posts"][thumbnail]["feature_image"];
+          let thumbnailTitle = json["posts"][thumbnail]["title"];
+          tempThumbnailData[thumbnailId] = { image: thumbnailImageAddress, title: thumbnailTitle };
+          //console.log("TEMPTHUMBNAILDATA", tempThumbnailData);
+        };
+        setThumbnailData(tempThumbnailData);
+        console.log("THUMBNAILDATA", thumbnailData);
+        //RenderLandingScreen(thumbnails = { thumbnailData });
+      })
+      .catch(error => { console.log("ERROR", error) });
+  }, [])
+ 
   
-  //console.log("AFTER IMAGE ARRAY");
+  
+  //const fruitData = ["oranges", "apples", "bananas"];
   return (
-    <SafeAreaView>
-
-    </SafeAreaView>
-  );
+    <View>
+      <Flatlist
+        data={fruitData}
+        renderItem={({ item }) => <Text>{item}</Text>}
+        keyExtractor={item => item}
+      />
+    </View>
+  )
 }
 
 const Stack = createNativeStackNavigator();
@@ -91,11 +108,26 @@ export default App;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+
     margin: 10,
+    screenWidth: '100%',
+    borderWidth: 5,
+    borderColor: 'blue',
 
   },
   webView: {
     width: '100%',
+  },
+  landing: {
+
+    justifyContent: 'center',
+    alignContent: 'center',
+    fontSize: 110,
+  },
+  test: {
+    backgroundColor: 'red',
+    borderWidth: 5,
+    borderColor: 'blue',
+    screenWidth: '100%',
   }
 });
