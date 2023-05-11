@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SafeAreaView, Flatlist } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, FlatList, Image, ScrollView } from 'react-native';
 import React, { useState, Component, useEffect } from 'react';
 import { WebView } from 'react-native-webview';
 import { NavigationContainer } from '@react-navigation/native';
@@ -55,8 +55,7 @@ function ActivePost({ navigation }) {
 }*/
 
 function LandingScreen(navigation) {
-  console.log("IN LANDING SCREEN");
-  const [numberThumbnails, setNumberThumbnails] = useState(4);
+  const [numberThumbnails, setNumberThumbnails] = useState(6);
   const [thumbnailData, setThumbnailData] = useState({});
   useEffect(() => {
     fetch(`https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=${numberThumbnails}&fields=id,title,feature_image`)
@@ -68,23 +67,23 @@ function LandingScreen(navigation) {
           let thumbnailImageAddress = json["posts"][thumbnail]["feature_image"];
           let thumbnailTitle = json["posts"][thumbnail]["title"];
           tempThumbnailData[thumbnailId] = { image: thumbnailImageAddress, title: thumbnailTitle };
-          //console.log("TEMPTHUMBNAILDATA", tempThumbnailData);
         };
         setThumbnailData(tempThumbnailData);
-        console.log("THUMBNAILDATA", thumbnailData);
-        //RenderLandingScreen(thumbnails = { thumbnailData });
+        console.log("THUMBNAILDATA", thumbnailData["63c469bc09f2381d5f266e18"]['image']);
       })
       .catch(error => { console.log("ERROR", error) });
   }, [])
- 
-  
-  
-  //const fruitData = ["oranges", "apples", "bananas"];
+
   return (
-    <View>
-      <Flatlist
-        data={fruitData}
-        renderItem={({ item }) => <Text>{item}</Text>}
+    <View style={{ flex: 1, borderWidth: 5, borderColor: 'pink' }}>
+      <FlatList
+        data={Object.keys(thumbnailData)}
+        renderItem={({ item }) =>
+          <View style={styles.test}>
+            <Text>{thumbnailData[item]['title']}</Text>
+            <Image style={styles.container} source={{ uri: `${thumbnailData[item]['image']}` }} />
+          </View>
+        }
         keyExtractor={item => item}
       />
     </View>
@@ -108,26 +107,20 @@ export default App;
 
 const styles = StyleSheet.create({
   container: {
-
     margin: 10,
-    screenWidth: '100%',
-    borderWidth: 5,
-    borderColor: 'blue',
-
+    width: '50%',
+    resizeMode: 'contain',
+    flex: 1
   },
   webView: {
     width: '100%',
   },
-  landing: {
-
-    justifyContent: 'center',
-    alignContent: 'center',
-    fontSize: 110,
-  },
   test: {
-    backgroundColor: 'red',
+    flex: 1,
+    flexGrow: 1,
     borderWidth: 5,
     borderColor: 'blue',
-    screenWidth: '100%',
+    width: '100%',
+    height: 200
   }
 });
