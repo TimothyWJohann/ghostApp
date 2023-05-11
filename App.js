@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, Flatlist } from 'react-native';
 import React, { useState, Component } from 'react';
 import { WebView } from 'react-native-webview';
 import { NavigationContainer } from '@react-navigation/native';
@@ -40,26 +40,38 @@ function ActivePost({ navigation }) {
   );
 }
 
-function LandingScreen() {
-  const [numberThumbnails, setNumberThumbnails] = useState('4');
-  const [imageArray, setImageArray] = useState('');
-  const [captionArray, setCaptionArray] = useState('');
-  fetch(`https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=${numberThumbnails}&include=id,title`)
+function LandingScreen(navigation) {
+  console.log("IN LANDING SCREEN");
+  const [numberThumbnails, setNumberThumbnails] = useState(4);
+  const [imageArray, setImageArray] = useState([]);
+  const [captionArray, setCaptionArray] = useState([]);
+  fetch(`https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=${numberThumbnails}&fields=id,title,feature_image_caption,feature_image`)
     .then(result => result.json())
     .then(json => {
-      for (let thumbnails = 0; thumbnails < numberThumbnails; thumbnails++) {
-        imageAddress = json["posts"][thumbnail]["feature_image"];
-        imageCaption = json["posts"][thumbnail]["feature_image_caption"];
-        let tempImageAddressArray = imageArray.push(imageAddress);
+      //console.log("JSON");
+      //console.log(json);
+      for (let thumbnail = 0; thumbnail < numberThumbnails; thumbnail++) {
+        let imageAddress = json["posts"][thumbnail]["feature_image"];
+        console.log("IMAGEADDRESS", imageAddress);
+        
+        let imageCaption = json["posts"][thumbnail]["feature_image_caption"];
+        let tempImageAddressArray = imageArray;
+        tempImageAddressArray = tempImageAddressArray.push(imageAddress);
         setImageArray(tempImageAddressArray);
-        let tempImageCaptionArray = captionArray.push(imageCaption);
+        let tempImageCaptionArray = captionArray;
+        tempImageCaptionArray = tempImageCaptionArray.push(imageCaption);
         setCaptionArray(tempImageCaptionArray);
       }
+      console.log("IMAGE ARRAY", imageArray);
     });
-    return(
-//FLATLIST HERE?
+  //console.log("BEFORE RETURN");
+  
+  //console.log("AFTER IMAGE ARRAY");
+  return (
+    <SafeAreaView>
 
-    );
+    </SafeAreaView>
+  );
 }
 
 const Stack = createNativeStackNavigator();
@@ -67,7 +79,7 @@ const Stack = createNativeStackNavigator();
 function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="ActivePost">
+      <Stack.Navigator initialRouteName="LandingScreen">
         <Stack.Screen name="LandingScreen" component={LandingScreen} />
         <Stack.Screen name="ActivePost" component={ActivePost} />
       </Stack.Navigator>
