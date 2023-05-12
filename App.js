@@ -40,25 +40,18 @@ function ActivePost({ navigation }) {
   );
 }
 
-/*function RenderLandingScreen(thumbnails) {
-  /*console.log("IN RENDER SCREEN");
-  const data = thumbnails.thumbnailData;
-  console.log("DATA", data);
-  console.log("KEYSDATA", Object.keys(data));
-  tempData = Object.keys(data);
-  testData = ["oranges", "apples", "bananas"];
+function LandingScreenSeparator() {
   return (
-    <View style={styles.test}>
-      <Text style={styles.landing}>Test text</Text>
-    </View>
-  );
-}*/
+    <View style={{ height: 2, width: "100%", backgroundColor: "black" }} />
+  )
+}
 
 function LandingScreen(navigation) {
   const [numberThumbnails, setNumberThumbnails] = useState(6);
   const [thumbnailData, setThumbnailData] = useState({});
+  const [newPostsReady, setNewPostsReady] = useState('true');
   useEffect(() => {
-    fetch(`https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=${numberThumbnails}&fields=id,title,feature_image`)
+    fetch(`https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=${numberThumbnails}&fields=id,title,feature_image,custom_excerpt`)
       .then(result => result.json())
       .then(json => {
         let tempThumbnailData = thumbnailData;
@@ -69,22 +62,26 @@ function LandingScreen(navigation) {
           tempThumbnailData[thumbnailId] = { image: thumbnailImageAddress, title: thumbnailTitle };
         };
         setThumbnailData(tempThumbnailData);
-        console.log("THUMBNAILDATA", thumbnailData["63c469bc09f2381d5f266e18"]['image']);
+        setNewPostsReady(!newPostsReady);
+        console.log("THUMBNAILDATA", thumbnailData["63c469bc09f2381d5f266e18"]['custom_excerpt']);
       })
       .catch(error => { console.log("ERROR", error) });
   }, [])
 
   return (
-    <View style={{ flex: 1, borderWidth: 5, borderColor: 'pink' }}>
+    <View style={{ flex: 1 }}>
       <FlatList
         data={Object.keys(thumbnailData)}
         renderItem={({ item }) =>
-          <View style={styles.test}>
-            <Text>{thumbnailData[item]['title']}</Text>
+          <View style={styles.landingpost}>
+            <Text style={styles.landingtitle}>{thumbnailData[item]['title']}</Text>
+            <Text style={styles.landingexcerpt}>{thumbnailData[item]['excerpt']}</Text>
             <Image style={styles.container} source={{ uri: `${thumbnailData[item]['image']}` }} />
           </View>
         }
         keyExtractor={item => item}
+        extraData={newPostsReady}
+        ItemSeparatorComponent={LandingScreenSeparator}
       />
     </View>
   )
@@ -107,20 +104,24 @@ export default App;
 
 const styles = StyleSheet.create({
   container: {
-    margin: 10,
     width: '50%',
     resizeMode: 'contain',
-    flex: 1
+    flex: 1,
+    minHeight: 100,
   },
   webView: {
     width: '100%',
   },
-  test: {
+  landingpost: {
     flex: 1,
+    width: '90%',
     flexGrow: 1,
-    borderWidth: 5,
-    borderColor: 'blue',
-    width: '100%',
-    height: 200
+    minHeight: 200,
+    margin: 15,
+  },
+  landingtitle: {
+    flex: 1,
+    fontSize: 20,
+    fontWeight: 'bold',
   }
 });
