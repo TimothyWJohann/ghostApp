@@ -6,45 +6,38 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 function ActivePost({ route, navigation }) {
-  /*const [pageHTML, setPageHTML] = useState('');
-  const [topImage, setTopImage] = useState('');
-  const [topImageCaption, setTopImageCaption] = useState('');*/
-  //console.log("IN ACTIVE POST");
-  const postToDisplay = route.params.postToDisplay;
-  //console.log("POSTTODISPLAY", postToDisplay);
-  const topImage = postToDisplay["image"];
-  const topImageCaption = postToDisplay["caption"];
-  const pageHTML = postToDisplay["html"];
+  const idOfPostToDisplay = route.params.idOfPostToDisplay;
 
-  /* fetch("https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=1")
-     .then(result => result.json())
-     .then(json => {
-       postData = json["posts"][0]["html"];
-       let imageAddress = json["posts"][0]["feature_image"];
-       let imageCaption = json["posts"][0]["feature_image_caption"];
-       setPageHTML(postData);
-       setTopImage(imageAddress);
-       setTopImageCaption(imageCaption);
-       //console.log(json);
-     });*/
-
-  return (
+  fetch(`https://cathy.sarisky.link/ghost/api/content/posts/${idOfPostToDisplay}/?key=e40b1d2e5d73dbfce53c612c7a`)
+    .then(result => result.json())
+    .then(json => {
+      console.log("JSON", json);
+      /*postData = json["posts"][0]["html"];
+      let imageAddress = json["posts"][0]["feature_image"];
+      let imageCaption = json["posts"][0]["feature_image_caption"];
+      setPageHTML(postData);
+      setTopImage(imageAddress);
+      setTopImageCaption(imageCaption);
+      //console.log(json);*/
+    });
+  }
+  /*return (
     <View style={styles.activepost}>
       <WebView style={styles.webView}
         originWhitelist={['*']}
         source={{
           html: `<style> 
-        body { font-size: 4rem }
+        body { font-size: 4rem; padding: 20px }
         ol {margin-left: 5rem}
         #bmc-wbtn { width: 10rem !important; height: 10rem !important; border-radius: 10rem !important}
         #bmc-wbtn img { width: 5rem !important; height: 5rem !important}
-        img { max-width: 100% !important; height: auto !important}
+        img { max-width: 100% !important; height: auto !important }
         </style>`+ '<body>' + `<img src="${topImage}">` + topImageCaption + pageHTML + '</body>'
         }}
       />
     </View>
   );
-}
+}*/
 
 function LandingScreenSeparator() {
   return (
@@ -56,7 +49,21 @@ function LandingScreen({ navigation }) {
   const [numberThumbnails, setNumberThumbnails] = useState(8);
   const [thumbnailData, setThumbnailData] = useState({});
   const [newPostsReady, setNewPostsReady] = useState('true');
+  const [postIdList, setPostIdList] = useState([]);
+
   useEffect(() => {
+
+    fetch(`https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=all&fields=id`)
+      .then(fetchedIdList => fetchedIdList.json())
+      .then(jsonIdList => {
+        let tempIdList = [];
+        for (let post of jsonIdList["posts"]) {
+          tempIdList.push(post["id"]);
+        }
+        setPostIdList(tempIdList);
+      })
+      .catch(error => { console.log("ERROR", error) });
+
     fetch(`https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=${numberThumbnails}&fields=id,title,feature_image,excerpt,feature_image_caption,html`)
       .then(result => result.json())
       .then(json => {
@@ -75,11 +82,9 @@ function LandingScreen({ navigation }) {
             html: thumbnailHTML,
             caption: thumbnailCaption
           };
-
         };
         setThumbnailData(tempThumbnailData);
         setNewPostsReady(!newPostsReady);
-        //console.log("THUMBNAILDATA", thumbnailData);
       })
       .catch(error => { console.log("ERROR", error) });
   }, [])
@@ -88,7 +93,9 @@ function LandingScreen({ navigation }) {
     <FlatList
       data={Object.keys(thumbnailData)}
       renderItem={({ item }) =>
-        <Pressable style={styles.landingpost} onPress={() => { navigation.navigate('ActivePost', { postToDisplay: thumbnailData[item] }) }}>
+        <Pressable style={styles.landingpost} onPress={() => {
+          navigation.navigate('ActivePost', { idOfPostToDisplay: thumbnailData[item]["id"], postIdList: postIdList })
+        }}>
           <Text style={styles.landingtitle}>{thumbnailData[item]['title']}</Text>
           <Text style={styles.landingexcerpt}>{thumbnailData[item]['excerpt']}</Text>
           <Image style={styles.container} source={{ uri: `${thumbnailData[item]['image']}` }} />
