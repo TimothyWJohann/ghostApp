@@ -1,43 +1,62 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SafeAreaView, FlatList, Image, ScrollView, Pressable } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, FlatList, Image, ScrollView, Pressable, Button } from 'react-native';
 import React, { useState, Component, useEffect } from 'react';
 import { WebView } from 'react-native-webview';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 function ActivePost({ route, navigation }) {
-  const idOfPostToDisplay = route.params.idOfPostToDisplay;
+  const [pageHTML, setPageHTML] = useState('');
+  const [topImage, setTopImage] = useState('');
+  const [topImageCaption, setTopImageCaption] = useState('');
+
+  let idOfPostToDisplay = route.params.idOfPostToDisplay;
+  let postIds = route.params.postIdList;
+  let indexOfPostToDisplay = postIds.indexOf(idOfPostToDisplay);
+  let idOfNextPost = postIds[indexOfPostToDisplay + 1];
+
+  console.log("CURRENT POST ID", idOfPostToDisplay );
+  console.log("NEXT POST ID", idOfNextPost );
+
+
+    navigation.setOptions({
+      headerRight: () => (
+        <Button onPress={() => navigation.navigate('ActivePost', { idOfPostToDisplay: idOfNextPost, postIdList: postIds })} title="Next Post" />
+      ),
+    });
+ 
 
   fetch(`https://cathy.sarisky.link/ghost/api/content/posts/${idOfPostToDisplay}/?key=e40b1d2e5d73dbfce53c612c7a`)
     .then(result => result.json())
     .then(json => {
-      console.log("JSON", json);
-      /*postData = json["posts"][0]["html"];
+      let postData = json["posts"][0]["html"];
       let imageAddress = json["posts"][0]["feature_image"];
       let imageCaption = json["posts"][0]["feature_image_caption"];
+      //need some logic to not set if it doesn't exist
       setPageHTML(postData);
       setTopImage(imageAddress);
       setTopImageCaption(imageCaption);
-      //console.log(json);*/
     });
-  }
-  /*return (
+
+  return (
     <View style={styles.activepost}>
       <WebView style={styles.webView}
         originWhitelist={['*']}
         source={{
           html: `<style> 
-        body { font-size: 4rem; padding: 20px }
-        ol {margin-left: 5rem}
-        #bmc-wbtn { width: 10rem !important; height: 10rem !important; border-radius: 10rem !important}
-        #bmc-wbtn img { width: 5rem !important; height: 5rem !important}
-        img { max-width: 100% !important; height: auto !important }
-        </style>`+ '<body>' + `<img src="${topImage}">` + topImageCaption + pageHTML + '</body>'
+      body { font-size: 4rem; padding: 20px }
+      ol {margin-left: 5rem}
+      #bmc-wbtn { width: 10rem !important; height: 10rem !important; border-radius: 10rem !important}
+      #bmc-wbtn img { width: 5rem !important; height: 5rem !important}
+      img { max-width: 100% !important; height: auto !important }
+      </style>`+ '<body>' + `<img src="${topImage}">` + topImageCaption + pageHTML + '</body>'
         }}
       />
     </View>
   );
-}*/
+}
+
+
 
 function LandingScreenSeparator() {
   return (
@@ -94,7 +113,7 @@ function LandingScreen({ navigation }) {
       data={Object.keys(thumbnailData)}
       renderItem={({ item }) =>
         <Pressable style={styles.landingpost} onPress={() => {
-          navigation.navigate('ActivePost', { idOfPostToDisplay: thumbnailData[item]["id"], postIdList: postIdList })
+          navigation.navigate('ActivePost', { idOfPostToDisplay: item, postIdList: postIdList })
         }}>
           <Text style={styles.landingtitle}>{thumbnailData[item]['title']}</Text>
           <Text style={styles.landingexcerpt}>{thumbnailData[item]['excerpt']}</Text>
@@ -110,12 +129,12 @@ function LandingScreen({ navigation }) {
 
 const Stack = createNativeStackNavigator();
 
-function App() {
+function App({ }) {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="LandingScreen">
-        <Stack.Screen name="LandingScreen" component={LandingScreen} />
-        <Stack.Screen name="ActivePost" component={ActivePost} />
+      <Stack.Navigator initialRouteName="Pick A Post">
+        <Stack.Screen name="Pick A Post" component={LandingScreen} />
+        <Stack.Screen name="ActivePost" component={ActivePost} options={{ title: '' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
