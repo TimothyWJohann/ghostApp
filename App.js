@@ -5,6 +5,30 @@ import { WebView } from 'react-native-webview';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+function HeaderRight({ idOfNextPost, postIds, navigation }) {
+  if (idOfNextPost) {
+    return (
+      <Button onPress={() =>
+        navigation.push('ActivePost', { idOfPostToDisplay: idOfNextPost, postIdList: postIds })} title="Next Post" />
+    )
+  };
+};
+
+function HeaderLeft({ idOfPreviousPost, postIds, navigation }) {
+  if (idOfPreviousPost) {
+    return (
+      <Button onPress={() =>
+        navigation.push('ActivePost', { idOfPostToDisplay: idOfPreviousPost, postIdList: postIds })} title="Prev Post" />
+    )
+  }
+  else {
+    return (
+      <Button onPress={() =>
+        navigation.navigate('Pick A Post')} title='Pick A Post' />
+    )
+  };
+};
+
 function ActivePost({ route, navigation }) {
   const [pageHTML, setPageHTML] = useState('');
   const [topImage, setTopImage] = useState('');
@@ -14,17 +38,23 @@ function ActivePost({ route, navigation }) {
   let postIds = route.params.postIdList;
   let indexOfPostToDisplay = postIds.indexOf(idOfPostToDisplay);
   let idOfNextPost = postIds[indexOfPostToDisplay + 1];
+  let idOfPreviousPost = postIds[indexOfPostToDisplay - 1];
 
-  console.log("CURRENT POST ID", idOfPostToDisplay );
-  console.log("NEXT POST ID", idOfNextPost );
+  console.log("CURRENT POST ID", idOfPostToDisplay);
+  console.log("NEXT POST ID", idOfNextPost);
 
-
+  useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <Button onPress={() => navigation.navigate('ActivePost', { idOfPostToDisplay: idOfNextPost, postIdList: postIds })} title="Next Post" />
+        <HeaderRight idOfNextPost={idOfNextPost} postIds={postIds} navigation={navigation} />
+
+      ),
+      headerLeft: () => (
+        <HeaderLeft idOfPreviousPost={idOfPreviousPost} postIds={postIds} navigation={navigation} />
       ),
     });
- 
+  }, [navigation]);
+
 
   fetch(`https://cathy.sarisky.link/ghost/api/content/posts/${idOfPostToDisplay}/?key=e40b1d2e5d73dbfce53c612c7a`)
     .then(result => result.json())
@@ -65,7 +95,7 @@ function LandingScreenSeparator() {
 }
 
 function LandingScreen({ navigation }) {
-  const [numberThumbnails, setNumberThumbnails] = useState(8);
+  const [numberThumbnails, setNumberThumbnails] = useState(32);
   const [thumbnailData, setThumbnailData] = useState({});
   const [newPostsReady, setNewPostsReady] = useState('true');
   const [postIdList, setPostIdList] = useState([]);
