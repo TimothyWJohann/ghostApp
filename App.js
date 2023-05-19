@@ -4,30 +4,11 @@ import React, { useState, Component, useEffect } from 'react';
 import { WebView } from 'react-native-webview';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Icon from 'react-native-vector-icons/Entypo';
+import { HeaderLeft, HeaderRight, HeaderTitle} from './header';
+import {styles} from './styles';
 
-function HeaderRight({ idOfNextPost, postIds, navigation }) {
-  if (idOfNextPost) {
-    return (
-      <Button onPress={() =>
-        navigation.push('ActivePost', { idOfPostToDisplay: idOfNextPost, postIdList: postIds })} title="Next Post" />
-    )
-  };
-};
 
-function HeaderLeft({ idOfPreviousPost, postIds, navigation }) {
-  if (idOfPreviousPost) {
-    return (
-      <Button onPress={() =>
-        navigation.push('ActivePost', { idOfPostToDisplay: idOfPreviousPost, postIdList: postIds })} title="Prev Post" />
-    )
-  }
-  else {
-    return (
-      <Button onPress={() =>
-        navigation.navigate('Pick A Post')} title='Pick A Post' />
-    )
-  };
-};
 
 function ActivePost({ route, navigation }) {
   const [pageHTML, setPageHTML] = useState('');
@@ -47,10 +28,12 @@ function ActivePost({ route, navigation }) {
     navigation.setOptions({
       headerRight: () => (
         <HeaderRight idOfNextPost={idOfNextPost} postIds={postIds} navigation={navigation} />
-
       ),
       headerLeft: () => (
         <HeaderLeft idOfPreviousPost={idOfPreviousPost} postIds={postIds} navigation={navigation} />
+      ),
+      headerTitle: () => (
+        <HeaderTitle navigation={navigation} />
       ),
     });
   }, [navigation]);
@@ -164,7 +147,7 @@ function App({ }) {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Pick A Post">
         <Stack.Screen name="Pick A Post" component={LandingScreen} />
-        <Stack.Screen name="ActivePost" component={ActivePost} options={{ title: '' }} />
+        <Stack.Screen name="ActivePost" component={ActivePost} options={{ title: 'Home' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -172,34 +155,4 @@ function App({ }) {
 
 export default App;
 
-const styles = StyleSheet.create({
-  container: {
-    width: '50%',
-    resizeMode: 'contain',
-    flex: 1,
-    minHeight: 100,
-  },
-  webView: {
-    width: '100%',
-  },
-  landingpost: {
-    flex: 1,
-    width: '90%',
-    flexGrow: 1,
-    minHeight: 200,
-    margin: 15,
-  },
-  landingtitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  landingexcerpt: {
-    margin: 10,
-  },
-  activepost: {
-    width: '100%',
-    resizeMode: 'contain',
-    flex: 1,
-    minHeight: 100,
-  }
-});
+
