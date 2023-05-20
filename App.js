@@ -5,8 +5,9 @@ import { WebView } from 'react-native-webview';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/Entypo';
-import { HeaderLeft, HeaderRight, HeaderTitle} from './header';
-import {styles} from './styles';
+import { HeaderLeft, HeaderRight, HeaderTitle } from './header';
+import { styles } from './styles';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 
 
@@ -53,6 +54,7 @@ function ActivePost({ route, navigation }) {
 
   return (
     <View style={styles.activepost}>
+      <TabBar />
       <WebView style={styles.webView}
         originWhitelist={['*']}
         source={{
@@ -122,22 +124,49 @@ function LandingScreen({ navigation }) {
   }, [])
 
   return (
-    <FlatList
-      data={Object.keys(thumbnailData)}
-      renderItem={({ item }) =>
-        <Pressable style={styles.landingpost} onPress={() => {
-          navigation.navigate('ActivePost', { idOfPostToDisplay: item, postIdList: postIdList })
-        }}>
-          <Text style={styles.landingtitle}>{thumbnailData[item]['title']}</Text>
-          <Text style={styles.landingexcerpt}>{thumbnailData[item]['excerpt']}</Text>
-          <Image style={styles.container} source={{ uri: `${thumbnailData[item]['image']}` }} />
-        </Pressable>
-      }
-      keyExtractor={item => item}
-      extraData={newPostsReady}
-      ItemSeparatorComponent={LandingScreenSeparator}
-    />
+    <View>
+      <TabBar />
+      <FlatList
+        data={Object.keys(thumbnailData)}
+        renderItem={({ item }) =>
+          <Pressable style={styles.landingpost} onPress={() => {
+            navigation.navigate('ActivePost', { idOfPostToDisplay: item, postIdList: postIdList })
+          }}>
+            <Text style={styles.landingtitle}>{thumbnailData[item]['title']}</Text>
+            <Text style={styles.landingexcerpt}>{thumbnailData[item]['excerpt']}</Text>
+            <Image style={styles.container} source={{ uri: `${thumbnailData[item]['image']}` }} />
+          </Pressable>
+        }
+        keyExtractor={item => item}
+        extraData={newPostsReady}
+        ItemSeparatorComponent={LandingScreenSeparator}
+      />
+    </View>
   )
+}
+function DownloadPost() {
+  return (
+    <Text style={{ fontSize: 30 }} >DOWNLOAD A POST SCREEN</Text>
+  );
+}
+
+function DownloadList() {
+  return (
+    <Text style={{ fontSize: 30 }}>DOWNLOAD LIST SCREEN</Text>
+  );
+
+}
+
+const Tab = createBottomTabNavigator();
+
+function TabBar() {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="DownloadPost" component={DownloadPost} />
+      <Tab.Screen name="DownloadList" component={DownloadList} />
+    </Tab.Navigator>
+  );
+
 }
 
 const Stack = createNativeStackNavigator();
@@ -147,7 +176,7 @@ function App({ }) {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Pick A Post">
         <Stack.Screen name="Pick A Post" component={LandingScreen} />
-        <Stack.Screen name="ActivePost" component={ActivePost} options={{ title: 'Home' }} />
+        <Stack.Screen name="ActivePost" component={ActivePost} />
       </Stack.Navigator>
     </NavigationContainer>
   );

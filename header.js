@@ -17,7 +17,7 @@ export function HeaderLeft({ idOfPreviousPost, postIds, navigation }) {
     if (idOfPreviousPost) {
         return (
             <Pressable onPress={() =>
-                navigation.push('ActivePost', { idOfPostToDisplay: idOfPreviousPost, postIdList: postIds })}  >
+                navigation.push('ActivePost', { idOfPostToDisplay: idOfPreviousPost, postIdList: postIds  })}  >
                 <Text style={styles.headertext}>Prev Post</Text>
             </Pressable>
         )
