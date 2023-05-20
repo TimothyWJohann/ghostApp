@@ -54,7 +54,6 @@ function ActivePost({ route, navigation }) {
 
   return (
     <View style={styles.activepost}>
-      <TabBar />
       <WebView style={styles.webView}
         originWhitelist={['*']}
         source={{
@@ -125,7 +124,6 @@ function LandingScreen({ navigation }) {
 
   return (
     <View>
-      <TabBar />
       <FlatList
         data={Object.keys(thumbnailData)}
         renderItem={({ item }) =>
@@ -157,27 +155,36 @@ function DownloadList() {
 
 }
 
-const Tab = createBottomTabNavigator();
-
-function TabBar() {
-  return (
-    <Tab.Navigator>
-      <Tab.Screen name="DownloadPost" component={DownloadPost} />
-      <Tab.Screen name="DownloadList" component={DownloadList} />
-    </Tab.Navigator>
-  );
-
-}
 
 const Stack = createNativeStackNavigator();
+
+function ContentNavigator() {
+  return (
+    <Stack.Navigator initialRouteName="Pick A Post">
+      <Stack.Screen name="Pick A Post" component={LandingScreen} />
+      <Stack.Screen name="ActivePost" component={ActivePost} />
+    </Stack.Navigator>
+  );
+};
+
+const Tab = createBottomTabNavigator();
 
 function App({ }) {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Pick A Post">
-        <Stack.Screen name="Pick A Post" component={LandingScreen} />
-        <Stack.Screen name="ActivePost" component={ActivePost} />
-      </Stack.Navigator>
+      <Tab.Navigator initialRouteName="ContentNavigator"
+        screenOptions={{
+          headerShown: false,
+          tabBarIcon: () => {
+
+              return (
+                <Icon name='home' />
+              )
+            
+          }
+        }}>
+        <Tab.Screen name="ContentNavigator" component={ContentNavigator} options={{ title: 'Home' }} />
+      </Tab.Navigator>
     </NavigationContainer>
   );
 }
