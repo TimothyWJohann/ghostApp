@@ -33,9 +33,7 @@ function ActivePost({ route, navigation }) {
       headerLeft: () => (
         <HeaderLeft idOfPreviousPost={idOfPreviousPost} postIds={postIds} navigation={navigation} />
       ),
-      headerTitle: () => (
-        <HeaderTitle navigation={navigation} />
-      ),
+      headerTitle: ''
     });
   }, [navigation]);
 
@@ -152,7 +150,6 @@ function DownloadList() {
   return (
     <Text style={{ fontSize: 30 }}>DOWNLOAD LIST SCREEN</Text>
   );
-
 }
 
 
@@ -167,23 +164,39 @@ function ContentNavigator() {
   );
 };
 
+
 const Tab = createBottomTabNavigator();
 
 function App({ }) {
   return (
     <NavigationContainer>
       <Tab.Navigator initialRouteName="ContentNavigator"
-        screenOptions={{
+        screenOptions={({ route }) => ({
           headerShown: false,
-          tabBarIcon: () => {
-
-              return (
-                <Icon name='home' />
-              )
-            
+          tabBarActiveTintColor: 'blue',
+          tabBarIcon: ({focused, color, size}) => {
+            let iconName;
+            if (route.name === 'ContentNavigator') {
+              iconName = focused ? 'home' : 'home';
+            } 
+            else if (route.name === 'DownloadPost') {
+              iconName = focused ? 'download' : 'download';
+            }
+            else if (route.name === 'DownloadList') {
+              iconName = focused ? 'archive' : 'archive';
+            }
+            return (
+              <Icon 
+              name={iconName} 
+              size={size}
+              color={color}
+              />
+            )
           }
-        }}>
+        })}>
         <Tab.Screen name="ContentNavigator" component={ContentNavigator} options={{ title: 'Home' }} />
+        <Tab.Screen name="DownloadPost" component={DownloadPost} />
+        <Tab.Screen name="DownloadList" component={DownloadList} />
       </Tab.Navigator>
     </NavigationContainer>
   );
