@@ -8,8 +8,7 @@ import Icon from 'react-native-vector-icons/Entypo';
 import { HeaderLeft, HeaderRight, HeaderTitle } from './header';
 import { styles } from './styles';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
-
+import { DownloadPost, DownloadList } from './downloaded-posts';
 
 function ActivePost({ route, navigation }) {
   const [pageHTML, setPageHTML] = useState('');
@@ -140,18 +139,6 @@ function LandingScreen({ navigation }) {
     </View>
   )
 }
-function DownloadPost() {
-  return (
-    <Text style={{ fontSize: 30 }} >DOWNLOAD A POST SCREEN</Text>
-  );
-}
-
-function DownloadList() {
-  return (
-    <Text style={{ fontSize: 30 }}>DOWNLOAD LIST SCREEN</Text>
-  );
-}
-
 
 const Stack = createNativeStackNavigator();
 
