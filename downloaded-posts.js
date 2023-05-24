@@ -5,16 +5,18 @@ import React, { useState, useEffect } from 'react';
 export function DownloadPost() {
     const [postCounter, setPostCounter] = useState(0);
     console.log('POSTCOUNTER', postCounter);
-    const storeData = async (numPosts) => {
+
+      getData();  
+
+    async function storeData (numPosts) {
         try {
-            const jsonNumPosts = JSON.stringify(numPosts)
-            await AsyncStorage.setItem('numberPosts', jsonNumPosts)
-            //alert('Successfully stored value')
+            const jsonNumPosts = JSON.stringify(numPosts);
+            await AsyncStorage.setItem('numberPosts', jsonNumPosts);
         } catch (e) {
             console.log('ERROR', e);
         }
     }
-    const getData = async () => {
+    async function getData () {
         try {
             const numPosts = await AsyncStorage.getItem('numberPosts');
             console.log("NUMPOSTS", numPosts);
@@ -22,7 +24,6 @@ export function DownloadPost() {
         } catch (e) {
         }
     }
-    getData();
 
     return (
         <View style={{ flex: 1, justifyContent: 'space-around' }}>

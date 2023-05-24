@@ -1,14 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView, FlatList, Image, ScrollView, Pressable, Button } from 'react-native';
-import React, { useState, Component, useEffect } from 'react';
+import React, { useState, Component, useEffect, useContext } from 'react';
 import { WebView } from 'react-native-webview';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useIsFocused } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/Entypo';
 import { HeaderLeft, HeaderRight, HeaderTitle } from './header';
 import { styles } from './styles';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DownloadPost, DownloadList } from './downloaded-posts';
+import { Settings } from './settings';
+import { NumPostsDisplay, numPostsDisplay } from './context';
 
 function ActivePost({ route, navigation }) {
   const [pageHTML, setPageHTML] = useState('');
@@ -76,10 +78,20 @@ function LandingScreenSeparator() {
 }
 
 function LandingScreen({ navigation }) {
-  const [numberThumbnails, setNumberThumbnails] = useState(32);
   const [thumbnailData, setThumbnailData] = useState({});
   const [newPostsReady, setNewPostsReady] = useState('true');
   const [postIdList, setPostIdList] = useState([]);
+  const [oldThumbnails, setOldThumbnails] = useState(0);
+  const { numberThumbnails, setNumberThumbnails } = useContext(NumPostsDisplay);
+  const isFocused = useIsFocused();
+  console.log('NUMBERTHUMBNAILS', numberThumbnails);
+
+ /* useEffect(() => {
+    if (isFocused && oldThumbnails !== numberThumbnails) {
+      console.log("LANDING SCREEN IS FOCUSED AND NUMBER OF THUMBNAILS CHANGED");
+      setOldThumbnails(numberThumbnails);
+    };
+  }, [isFocused])*/
 
   useEffect(() => {
 
@@ -155,36 +167,43 @@ function ContentNavigator() {
 const Tab = createBottomTabNavigator();
 
 function App({ }) {
+  const [numberThumbnails, setNumberThumbnails] = useState(8);
   return (
     <NavigationContainer>
-      <Tab.Navigator initialRouteName="ContentNavigator"
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          tabBarActiveTintColor: 'blue',
-          tabBarIcon: ({focused, color, size}) => {
-            let iconName;
-            if (route.name === 'ContentNavigator') {
-              iconName = focused ? 'home' : 'home';
-            } 
-            else if (route.name === 'DownloadPost') {
-              iconName = focused ? 'download' : 'download';
+      <NumPostsDisplay.Provider value={{ numberThumbnails, setNumberThumbnails }}>
+        <Tab.Navigator initialRouteName="ContentNavigator"
+          screenOptions={({ route }) => ({
+            headerShown: false,
+            tabBarActiveTintColor: 'blue',
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
+              if (route.name === 'ContentNavigator') {
+                iconName = focused ? 'home' : 'home';
+              }
+              else if (route.name === 'DownloadPost') {
+                iconName = focused ? 'download' : 'download';
+              }
+              else if (route.name === 'DownloadList') {
+                iconName = focused ? 'archive' : 'archive';
+              }
+              else if (route.name === 'Settings') {
+                iconName = focused ? 'cog' : 'cog';
+              }
+              return (
+                <Icon
+                  name={iconName}
+                  size={size}
+                  color={color}
+                />
+              )
             }
-            else if (route.name === 'DownloadList') {
-              iconName = focused ? 'archive' : 'archive';
-            }
-            return (
-              <Icon 
-              name={iconName} 
-              size={size}
-              color={color}
-              />
-            )
-          }
-        })}>
-        <Tab.Screen name="ContentNavigator" component={ContentNavigator} options={{ title: 'Home' }} />
-        <Tab.Screen name="DownloadPost" component={DownloadPost} />
-        <Tab.Screen name="DownloadList" component={DownloadList} />
-      </Tab.Navigator>
+          })}>
+          <Tab.Screen name="ContentNavigator" component={ContentNavigator} options={{ title: 'Home', unmountOnBlur: true}} />
+          <Tab.Screen name="DownloadPost" component={DownloadPost} />
+          <Tab.Screen name="DownloadList" component={DownloadList} />
+          <Tab.Screen name="Settings" component={Settings} />
+        </Tab.Navigator>
+      </NumPostsDisplay.Provider>
     </NavigationContainer>
   );
 }
