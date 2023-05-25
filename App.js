@@ -218,7 +218,7 @@ function App({ }) {
           <Tab.Screen name="ContentNavigator" component={ContentNavigator} options={{ title: 'Home', unmountOnBlur: true}} />
           <Tab.Screen name="DownloadPost" component={DownloadPost} />
           <Tab.Screen name="DownloadList" component={DownloadList} />
-          <Tab.Screen name="Settings" component={Settings} />
+          <Tab.Screen name="Settings" component={Settings} options={{ headerShown: true}} />
         </Tab.Navigator>
       </NumPostsDisplay.Provider>
     </NavigationContainer>

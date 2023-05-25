@@ -36,5 +36,19 @@ export const styles = StyleSheet.create({
     headertext: {
         color: 'blue',
         fontSize: 30
+    },
+    settingsbuttontext: {
+        color: 'black',
+        fontSize: 30,
+    },
+    settingsbuttonheadings:{
+        color: 'black',
+        fontSize: 25
+    },
+    settingsButtonView:{
+        flex: 1,
+        flexDirection: 'row',
+        flexBasis: 40,
+        width: 85
     }
 });
