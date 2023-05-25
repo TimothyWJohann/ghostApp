@@ -11,6 +11,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DownloadPost, DownloadList } from './downloaded-posts';
 import { Settings } from './settings';
 import { NumPostsDisplay, numPostsDisplay } from './context';
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 function ActivePost({ route, navigation }) {
   const [pageHTML, setPageHTML] = useState('');
@@ -86,14 +87,9 @@ function LandingScreen({ navigation }) {
   const isFocused = useIsFocused();
   console.log('NUMBERTHUMBNAILS', numberThumbnails);
 
- /* useEffect(() => {
-    if (isFocused && oldThumbnails !== numberThumbnails) {
-      console.log("LANDING SCREEN IS FOCUSED AND NUMBER OF THUMBNAILS CHANGED");
-      setOldThumbnails(numberThumbnails);
-    };
-  }, [isFocused])*/
-
   useEffect(() => {
+
+    if (numberThumbnails !== 0){
 
     fetch(`https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=all&fields=id`)
       .then(fetchedIdList => fetchedIdList.json())
@@ -105,11 +101,15 @@ function LandingScreen({ navigation }) {
         setPostIdList(tempIdList);
       })
       .catch(error => { console.log("ERROR", error) });
+    console.log("useEffect fire, numberThumbnails is", numberThumbnails)
 
     fetch(`https://cathy.sarisky.link/ghost/api/content/posts/?key=e40b1d2e5d73dbfce53c612c7a&limit=${numberThumbnails}&fields=id,title,feature_image,excerpt,feature_image_caption,html`)
       .then(result => result.json())
       .then(json => {
-        let tempThumbnailData = thumbnailData;
+        
+        //let tempThumbnailData = thumbnailData;
+        let tempThumbnailData = {}
+        console.log('reset tempThumbnailData with numberThumbnails = ', numberThumbnails)
         for (let thumbnail = 0; thumbnail < numberThumbnails; thumbnail++) {
           let thumbnailId = json["posts"][thumbnail]["id"];
           let thumbnailImageAddress = json["posts"][thumbnail]["feature_image"];
@@ -129,7 +129,7 @@ function LandingScreen({ navigation }) {
         setNewPostsReady(!newPostsReady);
       })
       .catch(error => { console.log("ERROR", error) });
-  }, [])
+  }}, [numberThumbnails])
 
   return (
     <View>
@@ -167,7 +167,24 @@ function ContentNavigator() {
 const Tab = createBottomTabNavigator();
 
 function App({ }) {
-  const [numberThumbnails, setNumberThumbnails] = useState(8);
+  const [numberThumbnails, setNumberThumbnails] = useState(0);
+  console.log('numberThumbnails before getNumPosts', numberThumbnails);
+  
+  async function getNumPosts () {
+    //const { numberThumbnails, setNumberThumbnails } = useContext(NumPostsDisplay);
+    console.log('IN GETNUMPOSTS')
+    try {
+        const numPosts = await AsyncStorage.getItem('numberPostsDisplay');
+        console.log("NUMPOSTSDISPLAY", numPosts);
+        setNumberThumbnails(+numPosts);
+    } catch (e) {console.log("ERROR", e);
+    }
+}
+
+  getNumPosts();
+
+  console.log('numberThumbnails after getNumPosts', numberThumbnails);
+  
   return (
     <NavigationContainer>
       <NumPostsDisplay.Provider value={{ numberThumbnails, setNumberThumbnails }}>
